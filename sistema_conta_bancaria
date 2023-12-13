@@ -1,0 +1,54 @@
+class ContaBancaria:
+    def __init__(self, nome, cpf, senha):
+        self.nome = nome
+        self.cpf = cpf
+        self.saldo = 0
+        self.senha = senha
+
+    def depositar(self, valor):
+        if valor > 0:
+            self.saldo += valor
+            print(f'Depósito de R${valor} realizado com sucesso. Saldo atual: R${self.saldo}')
+        else:
+            print('Valor inválido para depósito.')
+
+    def sacar(self, valor, senha):
+        if senha == self.senha:
+            if valor > 0 and valor <= self.saldo:
+                self.saldo -= valor
+                print(f'Saque de R${valor} realizado com sucesso. Saldo atual: R${self.saldo}')
+            else:
+                print('Saldo insuficiente ou valor de saque inválido.')
+        else:
+            print('Senha incorreta. Saque não autorizado.')
+
+    def fazer_pix(self, valor, destino, senha):
+        if senha == self.senha:
+            if valor > 0 and valor <= self.saldo:
+                self.saldo -= valor
+                destino.depositar(valor)
+                print(f'PIX de R${valor} para {destino.nome} realizado com sucesso.')
+                print(f'Saldo atual: R${self.saldo}')
+            else:
+                print('Saldo insuficiente ou valor de PIX inválido.')
+        else:
+            print('Senha incorreta. PIX não autorizado.')
+
+            sx = ContaBancaria('Diego', '125.654;789-11', 'sam123')
+sortudo = ContaBancaria('Fulano', '123.456.789-00', 'sortudo123')
+
+print(
+    f'''
+    O nome, cpf, senha e valor da conta é?
+    {sx.nome}
+    {sx.cpf}
+    {sx.saldo}
+    {sx.senha}
+    '''
+)
+
+sx.depositar(5000)
+sx.depositar(3000)
+sx.sacar(6000, 'sam123')
+sx.sacar(1000, 'sam123')
+sx.fazer_pix(1000, sortudo, 'sam123')
