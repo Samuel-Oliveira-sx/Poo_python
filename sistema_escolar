@@ -1,0 +1,214 @@
+import pandas as pd
+
+
+class SistemaEducacional:
+    def __init__(self, bancoDeDados):
+        try:
+            self.bancoDeDados = pd.read_excel('/content/sistema_escolar')
+        except FileNotFoundError:
+            print(f"Arquivo {bancoDeDados} não encontrado. Criando novo banco de dados.")
+            self.bancoDeDados = pd.DataFrame()
+
+    def ordenar(self):
+           self.bancoDeDados = self.bancoDeDados.sort_values(by=[
+            'Turma', 'Matriculado', 'Nome'
+            ])
+           print('Lista ordenada com SUCESSO !!')
+
+    def listaDeAlunos(self):
+        resposta = str(input("""
+Escolha:
+1 - Lista Completa
+2 - Matriculados
+3 - Nao matriculados
+Digite: """
+                             ))
+
+        if resposta == '1':
+            print(self.bancoDeDados)
+
+        elif resposta == '2':
+            alunosMatriculados = self.bancoDeDados[self.bancoDeDados[
+                'Matriculado'] == True]
+            print(alunosMatriculados)
+
+        elif resposta == '3':
+            alunosNaoMatriculados = self.bancoDeDados[self.bancoDeDados[
+                'Matriculado'] == False]
+            print(alunosNaoMatriculados)
+
+    def matricularAluno(self):
+        resposta = int(input("""
+Escolha:
+1 - Aluno Novo
+2 - Aluno Evadido
+Digite: """))
+        if resposta == 1:
+            nome = str(input('Digite o nome do aluno: '))
+            turma = str(input('Digite a turma do aluno: '))
+            turma = turma.upper()
+            matricula = True
+
+            alunoNovo = pd.DataFrame({
+                'Nome': [nome],
+                'Turma': [turma],
+                'Matriculado': [matricula],
+                'P1': [0.0],
+                'P2': [0.0],
+                'Trabalho': [0.0],
+                'Media': [0.0],
+                'Frequencia': [0.0],
+                'Resultado': ['Cursando']
+                })
+
+            self.bancoDeDados = pd.concat(
+                [self.bancoDeDados, alunoNovo],
+                )
+            self.bancoDeDados.reset_index(drop=True, inplace=True)
+        elif resposta == 2:
+            alunosNaoMatriculados = self.bancoDeDados[
+                self.bancoDeDados['Matriculado'] == False]
+            if len(alunosNaoMatriculados) == 0:
+                print('Não tem alunos evadidos não matriculados.')
+            else:
+                print(alunosNaoMatriculados)
+                indice = int(input("""
+Escolha o indice de um dos alunos nao matriculados
+acima para reativar a matricula """))
+                self.bancoDeDados.at[indice, 'Matriculado'] = True
+
+    def desmatricularAluno(self):
+        alunosMatriculados = self.bancoDeDados[
+            self.bancoDeDados['Matriculado'] == True]
+        if len(alunosMatriculados) == 0:
+            print('Não tem alunos para desmatricular.')
+        else:
+            print(alunosMatriculados)
+            indice = int(input("""
+Escolha o indice de um dos alunos matriculados
+acima para desativar a matricula """))
+            self.bancoDeDados.at[indice, 'Matriculado'] = False
+
+    def lançamentoDeNota(self):
+        self.bancoDeDados = self.bancoDeDados
+        resposta = int(input("""
+Escolha Aonde voce quer lançar a nota:
+1 - P1
+2 - P2
+3 - Trabalho
+Digite: """
+                             ))
+        if resposta == 1:
+            for i in range(0, len(self.bancoDeDados)):
+              if self.bancoDeDados.at[i, 'Matriculado'] == True:
+                    nome = self.bancoDeDados.at[i, 'Nome']
+                    p1 = float(input(f'Digite a nota do aluno {nome}: '))
+                    self.bancoDeDados.at[i, "P1"] = p1
+
+        elif resposta == 2:
+            for i in range(0, len(self.bancoDeDados)):
+                if self.bancoDeDados.at[i, 'Matriculado'] == True:
+                    nome = self.bancoDeDados.at[i, 'Nome']
+                    p2 = float(input(f'Digite a nota do aluno {nome}: '))
+                    self.bancoDeDados.at[i, "P2"] = p2
+
+        elif resposta == 3:
+            for i in range(0, len(self.bancoDeDados)):
+                if self.bancoDeDados.at[i, 'Matriculado'] == True:
+                    nome = self.bancoDeDados.at[i, 'Nome']
+                    trab = float(input(f'Digite a nota do aluno {nome}: '))
+                    self.bancoDeDados.at[i, "Trabalho"] = trab
+
+    def calcularMedia(self):
+        for i in range(0, len(self.bancoDeDados)):
+            media = round((
+                self.bancoDeDados.at[i, 'P1'] + self.bancoDeDados.at[i, 'P2']
+                + self.bancoDeDados.at[i, 'Trabalho']
+                )/3, 2)
+            self.bancoDeDados.at[i, "Media"] = media
+
+    def frequencia(self):
+        escolherTurma = input("Digite a turma para registrar a frequência: ")
+        escolherTurma = escolherTurma.upper()
+
+        alunos = self.bancoDeDados[self.bancoDeDados['Turma'] == escolherTurma]
+
+        if len(alunos) == 0:
+            print(f'Não há alunos matriculados na turma {escolherTurma}.')
+        else:
+            for i, aluno in alunos.iterrows():
+                nome = aluno['Nome']
+                frequencia = float(input(f'Digite a frequência para o aluno {nome}: '))
+                self.bancoDeDados.at[i, 'Frequencia'] += frequencia
+
+    def aprovar(self):
+        alunosAprovados = self.bancoDeDados[
+            (self.bancoDeDados['Media'] >= 6) &
+            (self.bancoDeDados['Frequencia'] >= 20) &
+            (self.bancoDeDados['Matriculado'] == True)
+        ]
+
+        alunosReprovados = self.bancoDeDados[
+            (self.bancoDeDados['Media'] < 6) |
+            (self.bancoDeDados['Frequencia'] >= 20) |
+            (self.bancoDeDados['Matriculado'] == True)
+        ]
+
+        if len(alunosReprovados) == 0:
+            print('Nenhum aluno foi reprovado')
+        else:
+            self.bancoDeDados.loc[alunosReprovados.index, 'Resultado'] = 'Reprovado'
+
+        if len(alunosAprovados) == 0:
+            print('Nenhum aluno foi aprovado')
+        else:
+            self.bancoDeDados.loc[alunosAprovados.index, 'Resultado'] = 'Aprovado'
+            for i in alunosAprovados.index:
+                turmaAtual = self.bancoDeDados.at[i, 'Turma']
+                if turmaAtual == 'A':
+                    self.bancoDeDados.at[i, 'Turma'] = 'B'
+                elif turmaAtual == 'B':
+                    self.bancoDeDados.at[i, 'Turma'] = 'C'
+                elif turmaAtual == 'C':
+                    self.bancoDeDados.at[i, 'Turma'] = 'Completou'
+            print(self.bancoDeDados)
+
+    def salvarDadosExcel(self):
+        self.bancoDeDados.to_excel("sistema_escolar.xlsx", index=False)
+
+
+escola = SistemaEducacional("sistema_escolar.xlsx")
+while True:
+    resposta = int(input("""
+-------- Sistema Educacional --------
+| 1 - Matricular Aluno              |
+| 2 - Desmatricular Aluno           |
+| 3 - Lançamento de Notas           |
+| 4 - Calcular Média                |
+| 5 - Lançamento de Frequencia      |
+| 6 - Lista de Alunos               |
+| 7 - Ordenar lista de Alunos       |
+| 8 - Resultado de aprovação        |
+| 9 - Salvar Dados no Excel         |
+-------------------------------------
+Resposta: """))
+    if resposta == 1:
+        escola.matricularAluno()
+    elif resposta == 2:
+        escola.desmatricularAluno()
+    elif resposta == 3:
+        escola.lançamentoDeNota()
+    elif resposta == 4:
+        escola.calcularMedia()
+    elif resposta == 5:
+        escola.frequencia()
+    elif resposta == 6:
+        escola.listaDeAlunos()
+    elif resposta == 7:
+        escola.ordenar()
+    elif resposta == 8:
+        escola.aprovar()
+    elif resposta == 9:
+        escola.salvarDadosExcel()
+    else:
+        break
