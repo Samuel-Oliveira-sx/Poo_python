@@ -1,0 +1,15 @@
+class Autor:
+    def __init__(self, nome):
+        self.nome = nome
+
+class Livro:
+    def __init__(self, titulo, autor):
+        self.titulo = titulo
+        self.autor = autor
+
+
+if __name__ == "__main__":
+  autor1 = Autor("José")
+  nome_livro1 = "As Loucura do biruleibe"
+  livro1 = Livro(nome_livro1, autor1.nome)
+  print(f'O nome do autor do livro {livro1.titulo} é {livro1.autor}!')
