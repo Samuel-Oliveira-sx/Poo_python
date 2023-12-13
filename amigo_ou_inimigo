@@ -1,0 +1,30 @@
+class Amigo:
+  def __init__(self, nome, idade, cidade):
+    self.nome = nome
+    self.idade = idade
+    self.cidade = cidade
+
+class Inimigo:
+  def __init__(self, nome, idade, cidade):
+    self.nome = nome
+    self.idade = idade
+    self.cidade = cidade
+
+if __name__ == "__main__":
+  amigo1 = Amigo("Zé da coves", 65, "Divinopolis - MT")
+  amigo2 = Amigo("Fulano", 35, "San José - Santiago - Chile")
+  amigo3 = Amigo("Beltrano", 58, "Rio de Janeiro - RJ")
+
+  inimigo1 = Inimigo(amigo3.nome, amigo3.idade, amigo3.cidade)
+  del amigo3
+
+  print(
+      f'''
+    Seus amigos são:
+    {amigo1.nome} que tem {amigo1.idade} anos, e mora em {amigo1.cidade}
+    {amigo2.nome} que tem {amigo2.idade} anos, e mora em {amigo2.cidade}
+
+    Já o seu inimo é:
+    {inimigo1.nome} que tem {inimigo1.idade} anos, e mora em {inimigo1.cidade}
+      '''
+  )
