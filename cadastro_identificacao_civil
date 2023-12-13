@@ -1,0 +1,110 @@
+from google.colab import drive
+drive.mount('/content/your drive')
+import pandas as pd
+
+class CadastroIdentidade:
+    def __init__(self):
+      self.dir = '/content/drive/MyDrive/Identificação Civil.xlsx'
+      try:
+          self.dados = pd.read_excel(self.dir)
+          colunas_vazias = self.dados[self.dados.isnull().all()]
+          self.dados = self.dados.drop(colunas_vazias, axis=1)
+
+      except:
+        self.dados = pd.DataFrame(columns=['Nome Completo', 'Data de Nascimento', 'Sexo', 'Cidade', 'Estado', 'Endereço',
+                                          'Naturalidade', 'Nacionalidade', 'Telefone', 'Filiação', 'Titulo de Eleitor'])
+        self.dados.to_excel(self.dir)
+
+    def adicionar_pessoa(self, nome_completo, data, sexo, cidade, estado, endereco, telefone, naturalidade, nacionalidade, filiacao, titulo_de_eleitor):
+        nova_pessoa = {'Nome Completo': nome_completo, 'Data de Nascimento': data, 'Sexo': sexo, 'Cidade': cidade,
+                       'Estado': estado, 'Endereço': endereco, 'Telefone': telefone, 'Naturalidade': naturalidade,
+                       'Nacionalidade': nacionalidade, 'Filiação': filiacao, 'Titulo de Eleitor': titulo_de_eleitor}
+        self.dados = self.dados.append(nova_pessoa, ignore_index=True)
+        print(f'{nome_completo} foi adicionado ao cadastro.')
+
+    def visualizar_cadastro(self):
+        print(self.dados)
+
+    def atualizar_pessoa(self, nome_completo, coluna, novo_valor):
+        if nome_completo in self.dados['Nome Completo'].values:
+            self.dados.loc[self.dados['Nome Completo'] == nome_completo, coluna] = novo_valor
+            print(f'Dados de {nome_completo} atualizados com sucesso.')
+        else:
+            print(f'{nome_completo} não encontrado no cadastro.')
+
+    def exportar_excel(self, nome_arquivo):
+        self.dados.to_excel(self.dir)
+        print(f'Dados exportados para {nome_arquivo}.')
+
+    def excluir_cadastro(self,nome_completo):
+      if nome_completo in self.dados['Nome Completo'].values:
+            self.indice = self.dados[self.dados['Nome Completo']== nome_completo].index
+            self.dados = self.dados.drop(self.indice)
+            print('Cadastro excluído com sucesso!')
+      else:
+        print(f'{nome_completo} não encontrado no cadastro.')
+
+    def sair(self):
+        print('Saindo do cadastro.')
+
+df = pd.read_excel('/content/drive/MyDrive/Identificação Civil.xlsx')
+
+df.head()
+
+if __name__ =='__main__':
+  cadastro = CadastroIdentidade()
+
+while True:
+        print('\nOpções:')
+        print('1 - Adicionar pessoa')
+        print('2 - Visualizar cadastro')
+        print('3 - Atualizar cadastro')
+        print('4 - Excluir cadastro')
+        print('5 - Exportar excel')
+        print('6 - Sair')
+        opcao = input('Escolha uma opção: ')
+
+        if opcao == '1':
+            nome_completo = input('Nome Completo: ')
+            data_de_nascimento = input('Data de Nascimento: ')
+            sexo = input('Sexo:')
+            cidade = input('Cidade:')
+            estado = input('Estado:')
+            endereco = input('Endereço: ')
+            telefone = input('Telefone: ')
+            naturalidade = input('Naturalidade: ')
+            nacionalidade = input('Nacionalidade: ')
+            filiacao = input('Filiação: ')
+            titulo_de_eleitor = input('Titulo de Eleitor:')
+
+            cadastro.adicionar_pessoa(nome_completo, data_de_nascimento, sexo,
+                                      cidade, estado, endereco, telefone, naturalidade,
+                                      nacionalidade, filiacao, titulo_de_eleitor)
+
+        elif opcao == '2':
+             cadastro.visualizar_cadastro()
+             #visualizar_cadastro = '/content/drive/MyDrive/Identificação Civil.xlsx'
+             #planilha = pd.read_excel(visualizar_cadastro)
+             #planilha.head()
+
+
+        elif opcao == '3':
+            nome_completo = input('Nome Completo da pessoa a ser atualizada: ')
+            coluna = input('Nome da coluna a ser atualizada: ')
+            novo_valor = input('Novo valor: ')
+            cadastro.atualizar_pessoa(nome_completo, coluna, novo_valor)
+
+        elif opcao == '4':
+            print('Nome completo da pessoa a ser excluída:')
+            nome_completo = input()
+            cadastro.excluir_cadastro(nome_completo)
+
+        elif opcao == '5':
+            cadastro.exportar_excel('/content/drive/MyDrive/Identificação Civil.xlsx')
+
+        elif opcao == '6':
+            cadastro.sair()
+            break
+
+        else:
+            print('Opção inválida. Tente novamente.')
